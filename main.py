@@ -1,57 +1,45 @@
-"""from fastapi import FastAPI, Request, Form
+from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+import mysql.connector
 
 app = FastAPI()
+
 templates = Jinja2Templates(directory="templates")
 
-@app.get("/", response_class=HTMLResponse)
-def home(req:Request):
-    sai_hi = "Hello, Welcome to my cafe"
-    return templates.TemplateResponse(
-        request=req,
-        name="home.html"
-    )
-    
-@app.post("/login")
-def login(req:Request,username:str = Form(),password:str = Form()):
-    print(username,password)
-    products = [(1,"Laptop",70000),(2,"iPhone",87000)]
-    return templates.TemplateResponse(
-        request=req,
-        name="product.html",
-        context={"products":products}
-    )"""
-from fastapi import FastAPI, Request, Form
-from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
 
-app = FastAPI()
-templates = Jinja2Templates(directory="templates")
+def get_connection():
+    connection = mysql.connector.connect(
+        host="localhost",
+        user="test",
+        password="Innomatics@123",
+        database="product_db"
+    )
+    return connection
+
 
 @app.get("/", response_class=HTMLResponse)
-def home(req:Request):
-    sai_hi = "Hello, Welcome to my cafe"
+def home(request: Request):
     return templates.TemplateResponse(
-        request=req,
-        name="home.html"
+        request=request,
+        name="home.html",
+        context={}
     )
 
-@app.get("/products",response_class=HTMLResponse)
-def products(req:Request):
-    products = [(1,"Laptop",70000),(2,"iPhone",87000)]
+
+@app.get("/products", response_class=HTMLResponse)
+def display_products(request: Request):
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("SELECT id, name, price FROM products")
+    products = cursor.fetchall()
+
+    cursor.close()
+    connection.close()
+
     return templates.TemplateResponse(
-        request=req,
+        request=request,
         name="product.html",
-        context={"products":products}
-    )
-    
-@app.post("/login")
-def login(req:Request,username:str = Form(),password:str = Form()):
-    print(username,password)
-    products = [(1,"Laptop",70000),(2,"iPhone",87000)]
-    return templates.TemplateResponse(
-        request=req,
-        name="product.html",
-        context={"products":products}
+        context={"products": products}
     )
