@@ -1,29 +1,28 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Product List</title>
+    <title>Products</title>
 </head>
 <body>
-    <h1>Available Products</h1>
+
+    <h1>Product List</h1>
 
     <table border="1">
         <tr>
             <th>ID</th>
-            <th>Product Name</th>
+            <th>Name</th>
             <th>Price</th>
         </tr>
 
         {% for product in products %}
         <tr>
-            <td>{{ product[0] }}</td>
-            <td>{{ product[1] }}</td>
-            <td>{{ product[2] }}</td>
+            <td>{{ product.id }}</td>
+            <td>{{ product.name }}</td>
+            <td>{{ product.price }}</td>
         </tr>
         {% endfor %}
+
     </table>
 
-    <br>
-
-    <a href="/">Back to Home</a>
 </body>
 </html>
