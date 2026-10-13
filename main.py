@@ -12,7 +12,7 @@ def get_connection():
     connection = mysql.connector.connect(
         host="localhost",
         user="test",
-        password="Innomatics@123",
+        password="password",
         database="product_db"
     )
     return connection
