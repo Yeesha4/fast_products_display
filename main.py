@@ -1,21 +1,18 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Depends
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-import mysql.connector
+from sqlalchemy.orm import Session
+
+from database import Base, engine, get_db
+from models import Product
+
 
 app = FastAPI()
 
 templates = Jinja2Templates(directory="templates")
 
-
-def get_connection():
-    connection = mysql.connector.connect(
-        host="localhost",
-        user="test",
-        password="password",
-        database="product_db"
-    )
-    return connection
+# Create tables if they do not exist
+Base.metadata.create_all(bind=engine)
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -28,15 +25,11 @@ def home(request: Request):
 
 
 @app.get("/products", response_class=HTMLResponse)
-def display_products(request: Request):
-    connection = get_connection()
-    cursor = connection.cursor()
-
-    cursor.execute("SELECT id, name, price FROM products")
-    products = cursor.fetchall()
-
-    cursor.close()
-    connection.close()
+def display_products(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    products = db.query(Product).all()
 
     return templates.TemplateResponse(
         request=request,
